@@ -26,3 +26,13 @@ func CreateTodo(c *fiber.Ctx) error {
 	response := CreateTodoResponse(todo)
 	return c.Status(200).JSON(response)
 }
+func GetAllTodos(c *fiber.Ctx) error {
+	var todos []models.Todo
+	database.Database.DB.Find(&todos)
+	todoss := []Todo{}
+	for _, todo := range todos {
+		response := CreateTodoResponse(todo)
+		todoss = append(todoss, response)
+	}
+	return c.Status(200).JSON(todoss)
+}

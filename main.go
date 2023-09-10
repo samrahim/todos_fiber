@@ -10,6 +10,7 @@ import (
 
 func SetUpRoutes(app *fiber.App) {
 	app.Post("/todos", routes.CreateTodo)
+	app.Get("/todos", routes.GetAllTodos)
 }
 
 func main() {

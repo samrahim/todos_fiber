@@ -16,7 +16,7 @@ type DBinstance struct {
 
 var Database DBinstance
 
-func ConnextToDb() {
+func ConnectToDb() {
 	db, err := gorm.Open(sqlite.Open("todos.db"), &gorm.Config{})
 	if err != nil {
 		log.Fatal("failed to Open Db", err.Error())
