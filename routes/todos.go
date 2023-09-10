@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"errors"
 	"todos/database"
 	"todos/models"
 
@@ -35,4 +36,60 @@ func GetAllTodos(c *fiber.Ctx) error {
 		todoss = append(todoss, response)
 	}
 	return c.Status(200).JSON(todoss)
+}
+
+func find(id int, todo *models.Todo) error {
+	database.Database.DB.Find(&todo, "id=?", id)
+	if todo.Id == 0 {
+		return errors.New("please check your id")
+	}
+	return nil
+}
+func GetTodoById(c *fiber.Ctx) error {
+	var todo models.Todo
+	id, err := c.ParamsInt("id")
+	if err != nil {
+		return c.Status(400).JSON(err.Error())
+	}
+	if err := find(id, &todo); err != nil {
+		return c.Status(400).JSON(err.Error())
+	}
+	repsonse := CreateTodoResponse(todo)
+	return c.Status(200).JSON(repsonse)
+}
+
+func DeleteTodo(c *fiber.Ctx) error {
+	var todo models.Todo
+	id, err := c.ParamsInt("id")
+	if err != nil {
+		return c.Status(400).JSON(err.Error())
+	}
+	if err := find(id, &todo); err != nil {
+		return c.Status(400).JSON(err.Error())
+	}
+	database.Database.DB.Delete(&todo)
+	return c.Status(200).JSON("successefully deleted")
+}
+
+func UpdateTodo(c *fiber.Ctx) error {
+	var todo models.Todo
+	id, err := c.ParamsInt("id")
+	if err != nil {
+		return c.Status(400).JSON(err.Error())
+	}
+	if err := find(id, &todo); err != nil {
+		return c.Status(400).JSON(err.Error())
+	}
+	type Up struct {
+		Title    string `json:"title"`
+		Subtitle string `json:"subtitle"`
+	}
+	var up Up
+	if err := c.BodyParser(&up); err != nil {
+		return c.Status(400).JSON(err.Error())
+	}
+	todo.Subtitle = up.Subtitle
+	todo.Title = up.Title
+	response := CreateTodoResponse(todo)
+	return c.Status(200).JSON(response)
 }
